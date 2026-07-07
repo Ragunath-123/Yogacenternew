@@ -1,0 +1,145 @@
+/* ============================================================
+   YogaLakshmi Wellness Center - Animation Stylesheet
+   CSS-only animations: fade, slide, float, reveal
+   ============================================================ */
+
+/* -------- Keyframes -------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes floatLeaf {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: .6; }
+  90%  { opacity: .5; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+@keyframes floatParticle {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  20%  { opacity: .8; }
+  80%  { opacity: .6; }
+  100% { transform: translateY(-110vh) translateX(40px); opacity: 0; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,.5); }
+  50%      { box-shadow: 0 0 0 14px rgba(212,175,55,0); }
+}
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes waveMove {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* -------- Hero entrance animations (play on load) -------- */
+.hero .hero-badge { animation: fadeInDown .8s ease both; }
+.hero h1          { animation: fadeInUp .9s ease .15s both; }
+.hero p.lead      { animation: fadeInUp .9s ease .3s both; }
+.hero .hero-btns  { animation: fadeInUp .9s ease .45s both; }
+.hero .hero-stats { animation: fadeInUp .9s ease .6s both; }
+.hero .hero-visual { animation: scaleIn 1s ease .3s both; }
+
+/* -------- Scroll-reveal utility classes --------
+   Elements with .reveal start hidden and animate in when
+   .is-visible is added by the IntersectionObserver in animation.js */
+.reveal { opacity: 0; will-change: opacity, transform; }
+.reveal.fade    { animation: fadeIn .8s ease both; }
+.reveal.up      { animation: fadeInUp .8s ease both; }
+.reveal.down    { animation: fadeInDown .8s ease both; }
+.reveal.left    { animation: fadeInLeft .8s ease both; }
+.reveal.right   { animation: fadeInRight .8s ease both; }
+.reveal.scale   { animation: scaleIn .8s ease both; }
+.reveal.slide-up { animation: slideUp .8s ease both; }
+
+/* Stagger children inside a reveal container */
+.reveal-stagger > * { opacity: 0; }
+.reveal-stagger.is-visible > * { animation: fadeInUp .7s ease both; }
+.reveal-stagger.is-visible > *:nth-child(1) { animation-delay: .05s; }
+.reveal-stagger.is-visible > *:nth-child(2) { animation-delay: .15s; }
+.reveal-stagger.is-visible > *:nth-child(3) { animation-delay: .25s; }
+.reveal-stagger.is-visible > *:nth-child(4) { animation-delay: .35s; }
+.reveal-stagger.is-visible > *:nth-child(5) { animation-delay: .45s; }
+.reveal-stagger.is-visible > *:nth-child(6) { animation-delay: .55s; }
+
+/* -------- Floating badge -------- */
+.about-media .badge-float { animation: bob 4s ease-in-out infinite; }
+
+/* -------- Pulsing CTA glow -------- */
+.pulse-glow { animation: pulseGlow 2.4s ease-in-out infinite; }
+
+/* -------- Slow spin (decorative) -------- */
+.spin-slow { animation: spinSlow 22s linear infinite; }
+
+/* -------- Hero leaf / particle default positions -------- */
+.hero .fx-layer .leaf { font-size: 1.4rem; }
+.hero .fx-layer .leaf.l1 { left: 8%;  animation-duration: 16s; animation-delay: 0s; }
+.hero .fx-layer .leaf.l2 { left: 22%; animation-duration: 20s; animation-delay: 3s; font-size: 1.8rem; }
+.hero .fx-layer .leaf.l3 { left: 40%; animation-duration: 14s; animation-delay: 6s; }
+.hero .fx-layer .leaf.l4 { left: 62%; animation-duration: 22s; animation-delay: 1s; font-size: 2rem; }
+.hero .fx-layer .leaf.l5 { left: 78%; animation-duration: 18s; animation-delay: 4s; }
+.hero .fx-layer .leaf.l6 { left: 90%; animation-duration: 15s; animation-delay: 7s; font-size: 1.6rem; }
+
+.hero .fx-layer .particle.p1 { left: 15%; bottom: 0; animation-duration: 12s; }
+.hero .fx-layer .particle.p2 { left: 35%; bottom: 0; animation-duration: 16s; animation-delay: 2s; }
+.hero .fx-layer .particle.p3 { left: 55%; bottom: 0; animation-duration: 14s; animation-delay: 4s; }
+.hero .fx-layer .particle.p4 { left: 72%; bottom: 0; animation-duration: 18s; animation-delay: 1s; }
+.hero .fx-layer .particle.p5 { left: 88%; bottom: 0; animation-duration: 13s; animation-delay: 5s; }
+
+/* -------- Wave continuous drift -------- */
+.hero .wave .wave-svg {
+  width: 200%; animation: waveMove 18s linear infinite;
+}
+
+/* -------- Shimmer text for accent words -------- */
+.shimmer-text {
+  background: linear-gradient(90deg, var(--gold-500), var(--gold-300), var(--gold-500));
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* -------- Reduced motion: disable animations -------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; }
+}
