@@ -33,7 +33,6 @@
           <a href="index.html#services">Services</a>
           <a href="index.html#transformations">Transformations</a>
           <a href="index.html#products">Products</a>
-          <a href="index.html#reviews">Reviews</a>
           <a href="index.html#contact" class="active">Contact</a>
         </div>
         <a href="#contact-form" class="btn btn-xl btn-gold ripple nav-cta">Book Free Consultation</a>
@@ -54,23 +53,30 @@
   <!-- CONTACT -->
   <section id="contact-form" class="section">
     <div class="container-x">
-      <div class="contact-grid reveal">
-        <div class="contact-info-card">
-          <h3>Contact Information</h3>
-          <div class="contact-item"><div class="ic"><i class="bi bi-telephone"></i></div><div><div class="lbl">Phone</div><div class="val"><a href="tel:+919003977672">+91 98765 43210</a></div></div></div>
-          <div class="contact-item"><div class="ic"><i class="bi bi-envelope"></i></div><div><div class="lbl">Email</div><div class="val"><a href="mailto:hello@yogalakshmi.com">hello@yogalakshmi.com</a></div></div></div>
-          <div class="contact-item"><div class="ic"><i class="bi bi-geo-alt"></i></div><div><div class="lbl">Address</div><div class="val">123 Wellness Avenue, Bengaluru, KA 560001</div></div></div>
-          <div class="contact-item"><div class="ic"><i class="bi bi-clock"></i></div><div><div class="lbl">Business Hours</div><div class="val">Mon–Sat: 7:00 AM – 8:00 PM<br>Sun: 8:00 AM – 2:00 PM</div></div></div>
-          <a href="https://wa.me/919003977672" target="_blank" rel="noopener" class="whatsapp-btn ripple"><i class="bi bi-whatsapp"></i> Chat on WhatsApp</a>
-        </div>
-
-        <div class="map-placeholder">
-          <div class="text-center">
-            <div class="pin"><i class="bi bi-geo-alt-fill"></i></div>
-            <div>Google Map Placeholder</div>
-            <div style="font-size:.85rem; color:var(--neutral-500); margin-top:6px;">Integrate Google Maps here</div>
+      <!-- Contact Form with WhatsApp Integration -->
+      <div class="contact-form-wrap reveal scale" style="max-width:600px; margin:20px auto 0;">
+        <h3 style="text-align:center; margin-bottom:30px;">Send us a Message</h3>
+        <form id="contactForm" class="contact-form">
+          <div class="form-field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" name="name" placeholder="Your full name" required />
           </div>
-        </div>
+          <div class="form-field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" name="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" name="phone" placeholder="Your WhatsApp number" pattern="[0-9]{10}" required />
+          </div>
+          <div class="form-field">
+            <label>Message <span class="req">*</span></label>
+            <textarea name="message" placeholder="Type your message here..." rows="5" required></textarea>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-xl btn-gold ripple px-5"><i class="bi bi-whatsapp"></i> Send via WhatsApp</button>
+          </div>
+        </form>
       </div>
     </div>
   </section>
@@ -103,7 +109,7 @@
         <div><h5>Quick Links</h5><ul>
           <li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li>
           <li><a href="services.html">Services</a></li><li><a href="products.html">Products</a></li>
-          <li><a href="reviews.html">Reviews</a></li><li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul></div>
         <div><h5>Services</h5><ul>
           <li><a href="services.html">Weight Loss</a></li><li><a href="services.html">Healthy Weight Gain</a></li>

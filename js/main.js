@@ -196,39 +196,127 @@ function initReviewsSlider() {
   resetTimer();
 }
 
-/* ---------- Review submission form (static, no backend) ---------- */
+/* ---------- Review submission form with WhatsApp integration ---------- */
 function initReviewForm() {
   const form = document.getElementById('reviewForm');
   if (!form) return;
-  const popup = document.getElementById('reviewPopup');
-  const closeBtn = popup && popup.querySelector('.popup-close');
-  const okBtn = popup && popup.querySelector('.popup-ok');
 
-  const showPopup = () => {
-    popup.classList.add('show');
-  };
-  const hidePopup = () => {
-    popup.classList.remove('show');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Get form values
+    const fullName = form.querySelector('input[name="fullName"]').value.trim();
+    const mobile = form.querySelector('input[name="mobile"]').value.trim();
+    const email = form.querySelector('input[name="email"]').value.trim();
+    const service = form.querySelector('select[name="service"]').value;
+    const rating = form.querySelector('input[name="rating"]:checked')?.value;
+    const review = form.querySelector('textarea[name="review"]').value.trim();
+    const beforeImageInput = form.querySelector('input[name="beforeImage"]');
+    const afterImageInput = form.querySelector('input[name="afterImage"]');
+
+    // Validate
+    if (!fullName || !mobile || !email || !service || !rating || !review) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Convert images to data URLs
+    let beforeImageData = null;
+    let afterImageData = null;
+
+    if (beforeImageInput.files[0]) {
+      beforeImageData = await fileToBase64(beforeImageInput.files[0]);
+    }
+    if (afterImageInput.files[0]) {
+      afterImageData = await fileToBase64(afterImageInput.files[0]);
+    }
+
+    // Build WhatsApp message with images as links (since wa.me doesn't support direct uploads)
+    let whatsappMessage = `*📝 NEW REVIEW SUBMISSION*\n\n`;
+    whatsappMessage += `*Client Details:*\n`;
+    whatsappMessage += `Name: ${fullName}\n`;
+    whatsappMessage += `Phone: ${mobile}\n`;
+    whatsappMessage += `Email: ${email}\n\n`;
+    whatsappMessage += `*Service:* ${service}\n`;
+    whatsappMessage += `*Rating:* ${'⭐'.repeat(rating)}\n\n`;
+    whatsappMessage += `*Review:*\n${review}\n\n`;
+
+    if (beforeImageData || afterImageData) {
+      whatsappMessage += `*📸 Images Attached:*\n`;
+      if (beforeImageData) {
+        whatsappMessage += `Before: [Image provided]\n`;
+      }
+      if (afterImageData) {
+        whatsappMessage += `After: [Image provided]\n`;
+      }
+    }
+
+    // WhatsApp API
+    const whatsappNumber = '919003977672';
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+    // Reset form
     form.reset();
-    // Reset custom star rating display
     const stars = form.querySelectorAll('.rating-input input');
     stars.forEach(s => { s.checked = false; });
-  };
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    showPopup();
+    // Open WhatsApp with message
+    window.open(whatsappURL, '_blank');
+
+    // Show success message
+    alert('✅ Review submitted! WhatsApp will open with your review details.');
   });
+}
 
-  closeBtn && closeBtn.addEventListener('click', hidePopup);
-  okBtn && okBtn.addEventListener('click', hidePopup);
-  popup && popup.addEventListener('click', e => { if (e.target === popup) hidePopup(); });
+/* ---------- Helper function to convert file to base64 ---------- */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
 }
 
 /* ---------- Footer year ---------- */
 function initYear() {
   const el = document.getElementById('year');
   if (el) el.textContent = new Date().getFullYear();
+}
+
+/* ---------- Contact form with WhatsApp integration ---------- */
+function initContactForm() {
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Get form values
+    const name = form.querySelector('input[name="name"]').value.trim();
+    const email = form.querySelector('input[name="email"]').value.trim();
+    const phone = form.querySelector('input[name="phone"]').value.trim();
+    const message = form.querySelector('textarea[name="message"]').value.trim();
+
+    // Validate
+    if (!name || !email || !phone || !message) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    // Format message for WhatsApp
+    const whatsappMessage = `Hello! 👋\n\n*Customer Inquiry*\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n*Message:*\n${message}`;
+
+    // WhatsApp API format
+    const whatsappNumber = '919003977672'; // YogaLakshmi WhatsApp number
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+    // Reset form and redirect
+    form.reset();
+    window.open(whatsappURL, '_blank');
+  });
 }
 
 /* ---------- Bootstrap ---------- */
@@ -241,5 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCounters();
   initReviewsSlider();
   initReviewForm();
+  initContactForm();
   initYear();
 });
