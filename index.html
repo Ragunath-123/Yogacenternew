@@ -232,39 +232,13 @@
       </div>
 
       <div class="transform-grid reveal-stagger">
-        <article class="transform-card">
-          <div class="ba-wrap">
-            <div class="img-tile before"><span class="tag before-tag">Before</span></div>
-            <div class="img-tile after"><span class="tag after-tag">After</span></div>
+        <!-- Transformations loaded dynamically from database -->
+        <div class="loading-state" style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+          <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
-          <div class="story">
-            <span class="meta">Weight Loss • 12 weeks</span>
-            <h4>Priya's Journey</h4>
-            <p>Lost 12 kg naturally with herbal nutrition and daily yoga. "I feel lighter, healthier and more confident than ever."</p>
-          </div>
-        </article>
-        <article class="transform-card">
-          <div class="ba-wrap">
-            <div class="img-tile before"><span class="tag before-tag">Before</span></div>
-            <div class="img-tile after"><span class="tag after-tag">After</span></div>
-          </div>
-          <div class="story">
-            <span class="meta">Healthy Weight Gain • 16 weeks</span>
-            <h4>Arjun's Story</h4>
-            <p>Gained 8 kg of healthy mass with a nutrient-rich herbal plan. "Finally feel strong and energetic every day."</p>
-          </div>
-        </article>
-        <article class="transform-card">
-          <div class="ba-wrap">
-            <div class="img-tile before"><span class="tag before-tag">Before</span></div>
-            <div class="img-tile after"><span class="tag after-tag">After</span></div>
-          </div>
-          <div class="story">
-            <span class="meta">Skin Care Therapy • 8 weeks</span>
-            <h4>Kavya's Glow Up</h4>
-            <p>Reversed years of skin dullness with herbal therapy. "My skin has never looked this natural and radiant."</p>
-          </div>
-        </article>
+          <p style="margin-top: 16px; color: var(--neutral-600);">Loading transformations...</p>
+        </div>
       </div>
     </div>
   </section>
@@ -411,6 +385,10 @@
                 <option>Nutrition Guidance</option>
                 <option>Herbal Products</option>
               </select>
+            </div>
+            <div class="form-field">
+              <label>Program Duration</label>
+              <input type="text" name="duration" placeholder="e.g., 12 weeks" />
             </div>
             <div class="form-field full">
               <label>Rating <span class="req">*</span></label>

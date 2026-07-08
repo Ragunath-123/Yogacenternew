@@ -196,7 +196,24 @@ function initReviewsSlider() {
   resetTimer();
 }
 
-/* ---------- Review submission form with WhatsApp integration ---------- */
+/* ---------- Review submission form with Supabase integration ---------- */
+let supabaseClient = null;
+let uploadImageFn = null;
+
+async function initSupabase() {
+  if (supabaseClient) return supabaseClient;
+
+  try {
+    const module = await import('./supabase.js');
+    supabaseClient = module.supabase;
+    uploadImageFn = module.uploadImage;
+    return supabaseClient;
+  } catch (err) {
+    console.error('Failed to load Supabase:', err);
+    return null;
+  }
+}
+
 function initReviewForm() {
   const form = document.getElementById('reviewForm');
   if (!form) return;
@@ -204,79 +221,177 @@ function initReviewForm() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Get form values
-    const fullName = form.querySelector('input[name="fullName"]').value.trim();
-    const mobile = form.querySelector('input[name="mobile"]').value.trim();
-    const email = form.querySelector('input[name="email"]').value.trim();
-    const service = form.querySelector('select[name="service"]').value;
-    const rating = form.querySelector('input[name="rating"]:checked')?.value;
-    const review = form.querySelector('textarea[name="review"]').value.trim();
-    const beforeImageInput = form.querySelector('input[name="beforeImage"]');
-    const afterImageInput = form.querySelector('input[name="afterImage"]');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
 
-    // Validate
-    if (!fullName || !mobile || !email || !service || !rating || !review) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    // Convert images to data URLs
-    let beforeImageData = null;
-    let afterImageData = null;
-
-    if (beforeImageInput.files[0]) {
-      beforeImageData = await fileToBase64(beforeImageInput.files[0]);
-    }
-    if (afterImageInput.files[0]) {
-      afterImageData = await fileToBase64(afterImageInput.files[0]);
-    }
-
-    // Build WhatsApp message with images as links (since wa.me doesn't support direct uploads)
-    let whatsappMessage = `*📝 NEW REVIEW SUBMISSION*\n\n`;
-    whatsappMessage += `*Client Details:*\n`;
-    whatsappMessage += `Name: ${fullName}\n`;
-    whatsappMessage += `Phone: ${mobile}\n`;
-    whatsappMessage += `Email: ${email}\n\n`;
-    whatsappMessage += `*Service:* ${service}\n`;
-    whatsappMessage += `*Rating:* ${'⭐'.repeat(rating)}\n\n`;
-    whatsappMessage += `*Review:*\n${review}\n\n`;
-
-    if (beforeImageData || afterImageData) {
-      whatsappMessage += `*📸 Images Attached:*\n`;
-      if (beforeImageData) {
-        whatsappMessage += `Before: [Image provided]\n`;
+    try {
+      // Initialize Supabase
+      const supabase = await initSupabase();
+      if (!supabase) {
+        throw new Error('Database connection failed. Please refresh and try again.');
       }
-      if (afterImageData) {
-        whatsappMessage += `After: [Image provided]\n`;
+
+      // Get form values
+      const fullName = form.querySelector('input[name="fullName"]').value.trim();
+      const mobile = form.querySelector('input[name="mobile"]').value.trim();
+      const email = form.querySelector('input[name="email"]').value.trim();
+      const service = form.querySelector('select[name="service"]').value;
+      const duration = form.querySelector('input[name="duration"]')?.value.trim() || '';
+      const rating = parseInt(form.querySelector('input[name="rating"]:checked')?.value);
+      const review = form.querySelector('textarea[name="review"]').value.trim();
+      const beforeImageInput = form.querySelector('input[name="beforeImage"]');
+      const afterImageInput = form.querySelector('input[name="afterImage"]');
+
+      // Validate
+      if (!fullName || !mobile || !email || !service || !rating || !review) {
+        throw new Error('Please fill in all required fields');
       }
+
+      // Upload images if provided
+      let beforeImageUrl = null;
+      let afterImageUrl = null;
+
+      if (beforeImageInput.files[0]) {
+        beforeImageUrl = await uploadImageFn(beforeImageInput.files[0]);
+      }
+      if (afterImageInput.files[0]) {
+        afterImageUrl = await uploadImageFn(afterImageInput.files[0]);
+      }
+
+      // Save review to database
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert([{
+          full_name: fullName,
+          mobile: mobile,
+          email: email,
+          service: service,
+          duration: duration,
+          rating: rating,
+          review_text: review,
+          before_image_url: beforeImageUrl,
+          after_image_url: afterImageUrl,
+          is_approved: false
+        }])
+        .select();
+
+      if (error) throw error;
+
+      // Reset form
+      form.reset();
+      const stars = form.querySelectorAll('.rating-input input');
+      stars.forEach(s => { s.checked = false; });
+
+      // Show success popup
+      showSuccessPopup();
+
+      // Refresh transformations display
+      await loadTransformations();
+
+    } catch (err) {
+      console.error('Submission error:', err);
+      alert(err.message || 'Failed to submit review. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
     }
-
-    // WhatsApp API
-    const whatsappNumber = '919003977672';
-    const encodedMessage = encodeURIComponent(whatsappMessage);
-    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
-    // Reset form
-    form.reset();
-    const stars = form.querySelectorAll('.rating-input input');
-    stars.forEach(s => { s.checked = false; });
-
-    // Open WhatsApp with message
-    window.open(whatsappURL, '_blank');
-
-    // Show success message
-    alert('✅ Review submitted! WhatsApp will open with your review details.');
   });
 }
 
-/* ---------- Helper function to convert file to base64 ---------- */
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-    reader.readAsDataURL(file);
-  });
+function showSuccessPopup() {
+  const popup = document.getElementById('reviewPopup');
+  if (!popup) return;
+  popup.classList.add('show');
+
+  const okBtn = popup.querySelector('.popup-ok');
+  const closeBtn = popup.querySelector('.popup-close');
+
+  const close = () => {
+    popup.classList.remove('show');
+  };
+
+  okBtn?.addEventListener('click', close);
+  closeBtn?.addEventListener('click', close);
+}
+
+/* ---------- Load and display transformation reviews from database ---------- */
+async function loadTransformations() {
+  const container = document.querySelector('.transform-grid');
+  if (!container) return;
+
+  try {
+    const supabase = await initSupabase();
+    if (!supabase) {
+      console.error('Supabase not initialized');
+      return;
+    }
+
+    const { data: reviews, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('is_approved', true)
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (error) throw error;
+
+    if (!reviews || reviews.length === 0) {
+      container.innerHTML = `
+        <div class="no-reviews" style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+          <i class="bi bi-stars" style="font-size: 3rem; color: var(--gold-400);"></i>
+          <h4 style="margin-top: 20px; color: var(--green-700);">No Transformations Yet</h4>
+          <p style="color: var(--neutral-600);">Be the first to share your wellness journey!</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = reviews.map(review => createTransformCard(review)).join('');
+
+  } catch (err) {
+    console.error('Error loading transformations:', err);
+  }
+}
+
+function createTransformCard(review) {
+  const beforeBg = review.before_image_url
+    ? `background-image: url('${review.before_image_url}'); background-size: cover; background-position: center;`
+    : 'background: linear-gradient(135deg, var(--neutral-200), var(--neutral-100));';
+
+  const afterBg = review.after_image_url
+    ? `background-image: url('${review.after_image_url}'); background-size: cover; background-position: center;`
+    : 'background: linear-gradient(135deg, var(--green-200), var(--gold-200));';
+
+  const stars = '⭐'.repeat(review.rating);
+  const duration = review.duration || `${review.service}`;
+
+  return `
+    <article class="transform-card">
+      <div class="ba-wrap">
+        <div class="img-tile before" style="${beforeBg}">
+          <span class="tag before-tag">Before</span>
+          ${!review.before_image_url ? '<span style="font-size: 0.75rem; opacity: 0.7;">Before</span>' : ''}
+        </div>
+        <div class="img-tile after" style="${afterBg}">
+          <span class="tag after-tag">After</span>
+          ${!review.after_image_url ? '<span style="font-size: 0.75rem; opacity: 0.7;">After</span>' : ''}
+        </div>
+      </div>
+      <div class="story">
+        <span class="meta">${duration} • ${stars}</span>
+        <h4>${escapeHtml(review.full_name)}'s Journey</h4>
+        <p>"${escapeHtml(review.review_text)}"</p>
+      </div>
+    </article>
+  `;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 /* ---------- Footer year ---------- */
@@ -320,7 +435,7 @@ function initContactForm() {
 }
 
 /* ---------- Bootstrap ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initMobileNav();
   initScrollUI();
   initSmoothScroll();
@@ -331,4 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initReviewForm();
   initContactForm();
   initYear();
+
+  // Load transformations from database
+  await loadTransformations();
 });
