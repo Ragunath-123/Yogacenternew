@@ -273,7 +273,7 @@ function initReviewForm() {
           review_text: review,
           before_image_url: beforeImageUrl,
           after_image_url: afterImageUrl,
-          is_approved: false
+          is_approved: true
         }])
         .select();
 
